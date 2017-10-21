@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
+import matplotlib.pyplot as plt
+
 
 mnist = input_data.read_data_sets('../MNIST_data', one_hot=True)
 
@@ -9,7 +11,7 @@ h1_dim = 128 #size of hidden layer
 output_dim = 10 #number of classes (10 digits)
 
 learning_rate = 0.01
-epoch_range = 20000
+epoch_range = 1000
 batch_size = 50
 
 def xavier_init(size):
@@ -35,9 +37,9 @@ output_layer = tf.matmul(hidden_layer, N_W2) + N_B2
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=output_layer, labels=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
-correct_prediction = tf.equal(tf.argmax(output_layer, 1), tf.argmax(y, 1))
-correct_prediction = tf.cast(correct_prediction, "float32")
-accuracy = tf.reduce_mean(correct_prediction)
+prediction = tf.equal(tf.argmax(output_layer, 1), tf.argmax(y, 1))
+prediction = tf.cast(prediction, "float32")
+accuracy = tf.reduce_mean(prediction)
 
 sess = tf.InteractiveSession()
 init = tf.global_variables_initializer()
@@ -53,3 +55,7 @@ for epoch in range(epoch_range):
 
     sess.run([optimizer, loss], feed_dict={x:batch_x, y:batch_y})
 
+test_number = mnist.test.images[0]
+plt.imshow(test_number.reshape(28,28), cmap="Greys");
+predict = tf.argmax(output_layer, 1)
+print(predict.eval({x:test_number.reshape(1,28*28)}))
